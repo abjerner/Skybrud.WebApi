@@ -1,4 +1,5 @@
 ﻿using System.Net.Http;
+using System.Net.Http.Formatting;
 using System.Text;
 using Newtonsoft.Json;
 using Skybrud.WebApi.Constants;
@@ -8,15 +9,30 @@ namespace Skybrud.WebApi {
     public class HttpJsonResponseMessage : HttpResponseMessage {
 
         public HttpJsonResponseMessage(object data) {
-            Content = new StringContent(Serialize(data, Formatting.None), Encoding.UTF8, MediaTypes.Json);
+            string content = JsonConvert.SerializeObject(data, Formatting.None);
+            Content = new StringContent(content, Encoding.UTF8, MediaTypes.Json);
         }
 
         public HttpJsonResponseMessage(object data, Formatting formatting) {
-            Content = new StringContent(Serialize(data, formatting), Encoding.UTF8, MediaTypes.Json);
+            string content = JsonConvert.SerializeObject(data, formatting);
+            Content = new StringContent(content, Encoding.UTF8, MediaTypes.Json);
         }
 
-        protected string Serialize(object data, Formatting formatting) {
-            return JsonConvert.SerializeObject(data, formatting);
+        public HttpJsonResponseMessage(object data, Formatting formatting, JsonSerializerSettings settings) {
+            string content = JsonConvert.SerializeObject(data, formatting, settings);
+            Content = new StringContent(content, Encoding.UTF8, MediaTypes.Json);
+        }
+
+        public HttpJsonResponseMessage(object data, Formatting formatting, JsonContractResolver contractResolver) {
+
+            JsonSerializerSettings settings = new JsonSerializerSettings {
+                ContractResolver = contractResolver
+            };
+
+            string content = JsonConvert.SerializeObject(data, formatting, settings);
+
+            Content = new StringContent(content, Encoding.UTF8, MediaTypes.Json);
+
         }
 
     }
